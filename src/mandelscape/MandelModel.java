@@ -16,6 +16,7 @@
  */
 package mandelscape;
 
+import javax.swing.*;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
@@ -42,6 +43,9 @@ public class MandelModel {
 
     private int [] iters;
     private int width, height;
+
+    private SwingWorker worker;
+
 
     /**
      * Create a new MandelModel with the specified initial maximum iteration
@@ -195,7 +199,12 @@ public class MandelModel {
      * @param ci
      * @return 
      */
-    private int getEscapeIters(CDouble c) {
+    private int getEscapeIters(CDouble c) throws InterruptedException{
+
+        if(Thread.interrupted()) {
+            System.out.println("InterruptedException");
+            throw new InterruptedException();
+        }
 
         CDouble z = CDouble.ZERO;
 
@@ -265,14 +274,50 @@ public class MandelModel {
      * Compute boundary escape iteration counts for each pixel in region.
      */
     public void update() {
-        for (int x=0; x<width; x++) {
-            for (int y=0; y<height; y++) {
 
-                CDouble c = getPointJittered(x, y, 0.1);
-                iters[x*height + y] = getEscapeIters(c);
-            }
+        if(worker != null) {
+            System.out.println(worker != null);
+            worker.cancel(true);
         }
 
-        fireModelChangedEvent();
+        worker = new SwingWorker<Void, Void>(){
+
+            @Override
+            protected Void doInBackground(){//throws Exception
+
+                try{
+                    for (int x=0; x<width; x++) {
+                        for (int y=0; y<height; y++) {
+
+                            CDouble c = getPointJittered(x, y, 0.1);
+                            iters[x*height + y] = getEscapeIters(c);
+
+                        }
+                        publish();
+                    }
+
+                }
+                catch (InterruptedException ex){
+
+                }
+                return null;
+            }
+
+            @Override
+            protected void process(List<Void> chunks) {
+                System.out.println("processing");
+                fireModelChangedEvent();
+            }
+
+            @Override
+            protected void done() {
+                //super.done();
+                fireModelChangedEvent();
+                System.out.println("Done");
+            }
+        };
+        worker.execute();
+
+
     }
 }
