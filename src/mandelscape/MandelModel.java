@@ -274,9 +274,8 @@ public class MandelModel {
      * Compute boundary escape iteration counts for each pixel in region.
      */
     public void update() {
-
+        System.out.println(worker != null);
         if(worker != null) {
-            System.out.println(worker != null);
             worker.cancel(true);
         }
 
@@ -286,6 +285,7 @@ public class MandelModel {
             protected Void doInBackground(){//throws Exception
 
                 try{
+
                     for (int x=0; x<width; x++) {
                         for (int y=0; y<height; y++) {
 
@@ -319,5 +319,21 @@ public class MandelModel {
         worker.execute();
 
 
+    }
+
+    private void coreUpdate() throws Exception {
+
+        for(int bsize = 64; bsize > 0; bsize/=2){
+            for (int x=0; x<width; x+=bsize) {
+                for (int y=0; y<height; y+=bsize) {
+
+                    CDouble c = getPointJittered(x, y, 0.1);
+                    int escapeIters = getEscapeIters(c);
+
+                    //iters[x*height + y] = getEscapeIters(c);
+
+                }
+            }
+        }
     }
 }
