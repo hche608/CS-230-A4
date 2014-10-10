@@ -285,17 +285,39 @@ public class MandelModel {
             protected Void doInBackground(){//throws Exception
 
                 try{
+                    int count = 0;
+                    for (int bsize = 64; bsize > 0; bsize/=2) {
+                        for (int x=0; x<width; x+=bsize) {
+                            for (int y=0; y<height; y+=bsize) {
 
-                    for (int x=0; x<width; x++) {
-                        for (int y=0; y<height; y++) {
+                                CDouble c = getPointJittered(x, y, 0.1);
+                                int escapeIters;
 
-                            CDouble c = getPointJittered(x, y, 0.1);
-                            iters[x*height + y] = getEscapeIters(c);
+
+                                if((bsize == 32 && x % 64 == 0 && y % 64 == 0) ||
+                                        (bsize == 16 && x % 32 == 0 && y % 32 == 0) ||
+                                        (bsize == 8 && x % 16 == 0 && y % 16 == 0) ||
+                                        (bsize == 4 && x % 8 == 0 && y % 8 == 0) ||
+                                        (bsize == 2 && x % 4 == 0 && y % 4 == 0) ||
+                                        (bsize == 1 && x % 2 == 0 && y % 2 == 0)) {
+                                    if(bsize == 32)
+                                        System.out.println("X is " + x + ", Y is " + y);
+                                    continue;
+
+                                }
+
+                                escapeIters = getEscapeIters(c);
+                                iters[x*height + y] = escapeIters;
+                                //iters[x*height + y] = getEscapeIters(c);
+                                count++;
+
+
+                            }
 
                         }
+                        System.out.println("height * width[" + height + "*" + width + " = " + (height * width) + "] Count is " + count);
                         publish();
                     }
-
                 }
                 catch (InterruptedException ex){
 
@@ -314,26 +336,11 @@ public class MandelModel {
                 //super.done();
                 fireModelChangedEvent();
                 System.out.println("Done");
+
             }
         };
         worker.execute();
 
-
     }
 
-    private void coreUpdate() throws Exception {
-
-        for(int bsize = 64; bsize > 0; bsize/=2){
-            for (int x=0; x<width; x+=bsize) {
-                for (int y=0; y<height; y+=bsize) {
-
-                    CDouble c = getPointJittered(x, y, 0.1);
-                    int escapeIters = getEscapeIters(c);
-
-                    //iters[x*height + y] = getEscapeIters(c);
-
-                }
-            }
-        }
-    }
 }
