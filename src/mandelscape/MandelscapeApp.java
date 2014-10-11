@@ -54,7 +54,7 @@ import javax.swing.filechooser.FileNameExtensionFilter;
  *
  * @author Tim Vaughan <tgvaughan@gmail.com>
  */
-public class MandelscapeApp extends JFrame implements ActionListener{
+public class MandelscapeApp extends JFrame {
 
     private final MandelPanel mandelPanel;
     private javax.swing.Timer colourTimer;
@@ -107,8 +107,39 @@ public class MandelscapeApp extends JFrame implements ActionListener{
             }
         });
         bottomPanel.add(zoomResetButton);
-
-
+        
+        //the number of concurrent threads
+        bottomPanel.add(new JLabel("Max thread: "));
+        JSpinner threadSpinner = new JSpinner(new SpinnerNumberModel(1, 1, 10, 1));
+        threadSpinner.addChangeListener(new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent e) {
+                JSpinner spinnerObj = (JSpinner)e.getSource();
+                model.setMaxThread((Integer)spinnerObj.getValue());
+            }
+        });
+        bottomPanel.add(threadSpinner);
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
 
         cp.add(bottomPanel, BorderLayout.SOUTH);
 
@@ -216,14 +247,6 @@ public class MandelscapeApp extends JFrame implements ActionListener{
         pack();
     }
 
-    @Override
-    public void actionPerformed(ActionEvent e) {
-        mandelPanel.getColourModel();
-        mandelPanel.getColourModel().getPeriod();
-
-    }
-
-
     public static void main(String[] args) {
 
         SwingUtilities.invokeLater(new Runnable() {
@@ -235,6 +258,5 @@ public class MandelscapeApp extends JFrame implements ActionListener{
 
 
     }
-
-
+    
 }
