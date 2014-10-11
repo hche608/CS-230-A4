@@ -54,7 +54,7 @@ import javax.swing.filechooser.FileNameExtensionFilter;
  *
  * @author Tim Vaughan <tgvaughan@gmail.com>
  */
-public class MandelscapeApp extends JFrame {
+public class MandelscapeApp extends JFrame implements ActionListener {
 
     private final MandelPanel mandelPanel;
     private javax.swing.Timer colourTimer;
@@ -247,6 +247,11 @@ public class MandelscapeApp extends JFrame {
         pack();
     }
 
+    @Override
+    public void actionPerformed(ActionEvent e) {
+
+    }
+
     public static void main(String[] args) {
 
         SwingUtilities.invokeLater(new Runnable() {
@@ -258,5 +263,6 @@ public class MandelscapeApp extends JFrame {
 
 
     }
-    
+
+
 }
