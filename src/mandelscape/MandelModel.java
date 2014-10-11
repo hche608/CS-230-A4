@@ -44,8 +44,7 @@ public class MandelModel {
     private int [] iters;
     private int width, height;
 
-    private SwingWorker worker;
-
+    private List<SwingWorker> workers = new ArrayList<SwingWorker>();
 
     /**
      * Create a new MandelModel with the specified initial maximum iteration
@@ -274,72 +273,91 @@ public class MandelModel {
      * Compute boundary escape iteration counts for each pixel in region.
      */
     public void update() {
-        System.out.println(worker != null);
-        if(worker != null) {
-            worker.cancel(true);
+
+        for (int i = 0; i < workers.size(); i++) {
+            System.out.println(workers.get(i) != null);
+            workers.get(i).cancel(true);
+            if(i == workers.size() - 1){
+                workers.clear();
+            }
         }
 
-        worker = new SwingWorker<Void, Void>(){
-
-            @Override
-            protected Void doInBackground(){//throws Exception
-
-                try{
-                    int count = 0;
-                    for (int bsize = 64; bsize > 0; bsize/=2) {
-                        for (int x=0; x<width; x+=bsize) {
-                            for (int y=0; y<height; y+=bsize) {
-
-                                CDouble c = getPointJittered(x, y, 0.1);
-                                int escapeIters;
 
 
-                                if((bsize == 32 && x % 64 == 0 && y % 64 == 0) ||
-                                        (bsize == 16 && x % 32 == 0 && y % 32 == 0) ||
-                                        (bsize == 8 && x % 16 == 0 && y % 16 == 0) ||
-                                        (bsize == 4 && x % 8 == 0 && y % 8 == 0) ||
-                                        (bsize == 2 && x % 4 == 0 && y % 4 == 0) ||
-                                        (bsize == 1 && x % 2 == 0 && y % 2 == 0)) {
-                                    if(bsize == 32)
-                                        System.out.println("X is " + x + ", Y is " + y);
-                                    continue;
+        for (int widx = 0; widx < WMAX; widx++) {
+            int xmin = widx*width/WMAX;
+            int xmax = (widx+1)*width/WMAX;
+
+
+            SwingWorker worker = new SwingWorker<Void, Void>(){
+
+                @Override
+                protected Void doInBackground(){
+
+                    try{
+                        int count = 0;
+                        int[] escapeIters = new int[width*height];
+                        //int bsize = 64;
+                        for (int bsize = 64; bsize > 0; bsize/=2) {
+                            for (int x=0; x<width; x+=bsize) {
+                                for (int y=0; y<height; y+=bsize) {
+
+                                    CDouble c = getPointJittered(x, y, 0.1);
+
+                                    if((bsize == 32 && x % 64 == 0 && y % 64 == 0) ||
+                                            (bsize == 16 && x % 32 == 0 && y % 32 == 0) ||
+                                            (bsize == 8 && x % 16 == 0 && y % 16 == 0) ||
+                                            (bsize == 4 && x % 8 == 0 && y % 8 == 0) ||
+                                            (bsize == 2 && x % 4 == 0 && y % 4 == 0) ||
+                                            (bsize == 1 && x % 2 == 0 && y % 2 == 0)) {
+                                        if(bsize == 32)
+                                            System.out.println("X is " + x + ", Y is " + y);
+                                        continue;
+                                    }
+
+                                    //escapeIters[x*height + y] = getEscapeIters(c);
+                                    //iters[x*height + y] = escapeIters[x*height + y];
+                                    iters[x*height + y] = getEscapeIters(c);
+
+                                    count++;
 
                                 }
-
-                                escapeIters = getEscapeIters(c);
-                                iters[x*height + y] = escapeIters;
-                                //iters[x*height + y] = getEscapeIters(c);
-                                count++;
-
-
                             }
+                                                    /*
+                            for (; x < x + bsize; x++ ){
+                                for (int y = x; y < y + bsize; y++ ){
+                                    iters[x*height + y] = escapeIters[x*height + y];
+                                }
 
+                            }*/
+
+                            System.out.println("height * width[" + height + "*" + width + " = " + (height * width) + "] Count is " + count);
+                            publish();
                         }
-                        System.out.println("height * width[" + height + "*" + width + " = " + (height * width) + "] Count is " + count);
-                        publish();
                     }
+                    catch (InterruptedException ex){
+
+                    }
+                    return null;
                 }
-                catch (InterruptedException ex){
+
+                @Override
+                protected void process(List<Void> chunks) {
+                    System.out.println("processing");
+                    fireModelChangedEvent();
+                }
+
+                @Override
+                protected void done() {
+                    fireModelChangedEvent();
+                    System.out.println("Done");
 
                 }
-                return null;
-            }
+            };
+            workers.add(worker);
+            worker.execute();
+        }
 
-            @Override
-            protected void process(List<Void> chunks) {
-                System.out.println("processing");
-                fireModelChangedEvent();
-            }
-
-            @Override
-            protected void done() {
-                //super.done();
-                fireModelChangedEvent();
-                System.out.println("Done");
-
-            }
-        };
-        worker.execute();
 
     }
 
