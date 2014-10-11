@@ -17,9 +17,12 @@
 package mandelscape;
 
 import javax.swing.*;
+
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * Model for the Mandelbrot set.  Contains the computed escape iteration
@@ -43,8 +46,10 @@ public class MandelModel {
 
     private int [] iters;
     private int width, height;
-
-    private SwingWorker worker;
+    
+    private ArrayList<SwingWorker> workers = new ArrayList<SwingWorker>();
+    //private SwingWorker worker;
+    private int WMAX;
 
 
     /**
@@ -66,6 +71,9 @@ public class MandelModel {
         this.crMax = cr0Max;
         this.ciMin = ci0Min;
         this.ciMax = ci0Max;
+        
+        //default thread for the WMAX
+        this.WMAX = 1;
     }
 
     /**
@@ -202,7 +210,7 @@ public class MandelModel {
     private int getEscapeIters(CDouble c) throws InterruptedException{
 
         if(Thread.interrupted()) {
-            System.out.println("InterruptedException");
+            System.out.println("InterruptedException thrown here");
             throw new InterruptedException();
         }
 
@@ -274,73 +282,88 @@ public class MandelModel {
      * Compute boundary escape iteration counts for each pixel in region.
      */
     public void update() {
-        System.out.println(worker != null);
-        if(worker != null) {
-            worker.cancel(true);
-        }
+    	for(SwingWorker worker : workers){
+    		//if(worker != null)
+                worker.cancel(true);
+    	}
+    	workers.clear();
+    	
+    	//ExecutorService fixedPool = Executors.newFixedThreadPool(WMAX);
+    	for(int widx = 0; widx < WMAX; widx++){
+    		//System.out.println("Thread " + widx + " is running, max Thread is " + WMAX + ".");
+    		final int xmin=widx*width/WMAX;
+    		final int xmax=(widx+1)*width/WMAX;
+        	SwingWorker worker = new SwingWorker<Void, Void>(){
 
-        worker = new SwingWorker<Void, Void>(){
+                @Override
+                protected Void doInBackground(){//throws Exception
 
-            @Override
-            protected Void doInBackground(){//throws Exception
+                    try{
+                        int count = 0;
+                        for (int bsize = 64; bsize > 0; bsize/=2) {
+                            for (int x=xmin; x<xmax; x+=bsize) {
+                                for (int y=0; y<height; y+=bsize) {
 
-                try{
-                    int count = 0;
-                    for (int bsize = 64; bsize > 0; bsize/=2) {
-                        for (int x=0; x<width; x+=bsize) {
-                            for (int y=0; y<height; y+=bsize) {
+                                    CDouble c = getPointJittered(x, y, 0.1);
+                                    int escapeIters;
 
-                                CDouble c = getPointJittered(x, y, 0.1);
-                                int escapeIters;
-
-
-                                if((bsize == 32 && x % 64 == 0 && y % 64 == 0) ||
-                                        (bsize == 16 && x % 32 == 0 && y % 32 == 0) ||
-                                        (bsize == 8 && x % 16 == 0 && y % 16 == 0) ||
-                                        (bsize == 4 && x % 8 == 0 && y % 8 == 0) ||
-                                        (bsize == 2 && x % 4 == 0 && y % 4 == 0) ||
-                                        (bsize == 1 && x % 2 == 0 && y % 2 == 0)) {
-                                    if(bsize == 32)
-                                        System.out.println("X is " + x + ", Y is " + y);
-                                    continue;
-
+                                    if((bsize == 32 && x % 64 == 0 && y % 64 == 0) ||
+                                            (bsize == 16 && x % 32 == 0 && y % 32 == 0) ||
+                                            (bsize == 8 && x % 16 == 0 && y % 16 == 0) ||
+                                            (bsize == 4 && x % 8 == 0 && y % 8 == 0) ||
+                                            (bsize == 2 && x % 4 == 0 && y % 4 == 0) ||
+                                            (bsize == 1 && x % 2 == 0 && y % 2 == 0)) {
+                                        if(bsize == 32)
+                                            //System.out.println("X is " + x + ", Y is " + y);
+                                        continue;
+                                    }
+                                    escapeIters = getEscapeIters(c);
+                                    iters[x*height + y] = escapeIters;
+                                    //iters[x*height + y] = getEscapeIters(c);
+                                    count++;
                                 }
-
-                                escapeIters = getEscapeIters(c);
-                                iters[x*height + y] = escapeIters;
-                                //iters[x*height + y] = getEscapeIters(c);
-                                count++;
-
-
                             }
-
+                            //System.out.println("height * width[" + height + "*" + width + " = " + (height * width) + "] Count is " + count);
+                            publish();
                         }
-                        System.out.println("height * width[" + height + "*" + width + " = " + (height * width) + "] Count is " + count);
-                        publish();
                     }
+                    catch (InterruptedException ex){
+                    	System.out.println("catch an InterruptedException");
+                    }
+                    return null;
                 }
-                catch (InterruptedException ex){
 
+                @Override
+                protected void process(List<Void> chunks) {
+                    //System.out.println("processing");
+                    fireModelChangedEvent();
                 }
-                return null;
-            }
 
-            @Override
-            protected void process(List<Void> chunks) {
-                System.out.println("processing");
-                fireModelChangedEvent();
-            }
-
-            @Override
-            protected void done() {
-                //super.done();
-                fireModelChangedEvent();
-                System.out.println("Done");
-
-            }
-        };
-        worker.execute();
-
+                @Override
+                protected void done() {
+                    fireModelChangedEvent();
+                    System.out.println("Done");
+                }
+            };
+            workers.add(worker);
+            worker.execute();
+            //fixedPool.submit(worker);
+    	}
+    	for(int i = 0; i < workers.size();i++){
+    		System.out.println("Thread " + i + " is running, max Thread is " + workers.size() + ".");
+    	}
+    	
+    }
+    
+    /**
+     * Set the maximum number of iterations to perform when estimating
+     * boundary escape rate.
+     * 
+     * @param newMaxIter 
+     */
+    public void setMaxThread(int newMaxThread) {
+        WMAX = newMaxThread;
+        update();
     }
 
 }

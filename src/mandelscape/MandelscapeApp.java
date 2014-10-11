@@ -106,6 +106,39 @@ public class MandelscapeApp extends JFrame {
             }
         });
         bottomPanel.add(zoomResetButton);
+        
+        //the number of concurrent threads
+        bottomPanel.add(new JLabel("Max thread: "));
+        JSpinner threadSpinner = new JSpinner(new SpinnerNumberModel(1, 1, 10, 1));
+        threadSpinner.addChangeListener(new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent e) {
+                JSpinner spinnerObj = (JSpinner)e.getSource();
+                model.setMaxThread((Integer)spinnerObj.getValue());
+            }
+        });
+        bottomPanel.add(threadSpinner);
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
 
         cp.add(bottomPanel, BorderLayout.SOUTH);
 
