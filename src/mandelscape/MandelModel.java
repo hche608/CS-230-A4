@@ -288,7 +288,7 @@ public class MandelModel {
     	}
     	workers.clear();
     	
-    	//ExecutorService fixedPool = Executors.newFixedThreadPool(WMAX);
+    	ExecutorService fixedPool = Executors.newFixedThreadPool(WMAX);
     	for(int widx = 0; widx < WMAX; widx++){
     		//System.out.println("Thread " + widx + " is running, max Thread is " + WMAX + ".");
     		final int xmin=widx*width/WMAX;
@@ -346,8 +346,8 @@ public class MandelModel {
                 }
             };
             workers.add(worker);
-            worker.execute();
-            //fixedPool.submit(worker);
+            //worker.execute();
+            fixedPool.submit(worker);
     	}
     	for(int i = 0; i < workers.size();i++){
     		System.out.println("Thread " + i + " is running, max Thread is " + workers.size() + ".");

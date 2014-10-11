@@ -57,6 +57,7 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 public class MandelscapeApp extends JFrame {
 
     private final MandelPanel mandelPanel;
+    private javax.swing.Timer colourTimer;
 
     public MandelscapeApp() {
         setTitle("MandelView - Mandelbrot Set Viewer");
