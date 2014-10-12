@@ -28,9 +28,12 @@ import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.Timer;
+
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -103,7 +106,7 @@ public class MandelscapeApp extends JFrame implements ActionListener {
         zoomResetButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                model.resetZoom();
+            	model.resetZoom();
             }
         });
         bottomPanel.add(zoomResetButton);
@@ -120,27 +123,31 @@ public class MandelscapeApp extends JFrame implements ActionListener {
         });
         bottomPanel.add(threadSpinner);
         
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-
+        //Initial timer
+        colourTimer = new javax.swing.Timer(1,this);
+        /*
+        colourTimer = new javax.swing.Timer(1000, new ActionListener(){
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				System.out.println("Timer starts 1000");
+				model.update();
+			}   	
+        });
+        */
+        final JCheckBox checkBox = new JCheckBox("Animate");
+        checkBox.addChangeListener(new ChangeListener() {
+        	
+        	@Override
+            public void stateChanged(ChangeEvent e) {
+        		if (checkBox.isSelected()){
+        			colourTimer.start();
+        		} else {
+        			colourTimer.stop();
+        		}
+        	}
+        });
+        bottomPanel.add(checkBox);
+               
         cp.add(bottomPanel, BorderLayout.SOUTH);
 
 
@@ -249,7 +256,13 @@ public class MandelscapeApp extends JFrame implements ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-
+    	System.out.println("Timer start!");
+    	MandelColourModel currentColourModel = mandelPanel.getColourModel();
+    	int currentPeriod = mandelPanel.getColourModel().getPeriod();
+    	int currentOffset = mandelPanel.getColourModel().getOffset();
+    	System.out.println((500 % 10) + "The currentColourModel:" + currentColourModel + ", The currentPeriod:" + currentPeriod + ", The currentOffset: " + currentOffset);
+    	//mandelPanel.getColourModel().setOffset(currentOffset + 10 );
+    	mandelPanel.getColourModel().setPeriod(currentPeriod + 100 );
     }
 
     public static void main(String[] args) {
