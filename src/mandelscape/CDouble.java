@@ -43,9 +43,9 @@ public class CDouble {
     /**
      * Create a new complex number with the given real and imaginary
      * parts.
-     * 
+     *
      * @param real
-     * @param imag 
+     * @param imag
      */
     public CDouble(double real, double imag) {
         this.real = real;
@@ -54,7 +54,7 @@ public class CDouble {
 
     /**
      * Add two complex numbers together.
-     * 
+     *
      * @param arg
      * @return new complex number
      */
@@ -64,18 +64,18 @@ public class CDouble {
 
     /**
      * Multiply two complex numbers together.
-     * 
+     *
      * @param arg
      * @return new complex number
      */
     public CDouble mul(CDouble arg) {
-        return new CDouble(real*arg.real - imag*arg.imag,
-            imag*arg.real + real*arg.imag);
+        return new CDouble(real * arg.real - imag * arg.imag,
+                imag * arg.real + real * arg.imag);
     }
 
     /**
      * Square this complex number.
-     * 
+     *
      * @return new complex number
      */
     public CDouble squared() {
@@ -84,26 +84,26 @@ public class CDouble {
 
     /**
      * Scale this complex number by a real factor.
-     * 
+     *
      * @param arg
      * @return new complex number
      */
     public CDouble scale(double arg) {
-        return new CDouble(arg*real, arg*imag);
+        return new CDouble(arg * real, arg * imag);
     }
 
     /**
      * Return the square of the absolute value of this complex number.
-     * 
+     *
      * @return result
      */
     public double abs2() {
-        return real*real + imag*imag;
+        return real * real + imag * imag;
     }
 
     /**
      * Return the absolute value of this complex number.
-     * 
+     *
      * @return result
      */
     public double abs() {
@@ -112,14 +112,14 @@ public class CDouble {
 
     /**
      * Test to see whether two complex numbers are equal.
-     * 
+     *
      * @param obj
      * @return True if both the real and imaginary components are equal.
      */
     @Override
     public boolean equals(Object obj) {
         if (obj instanceof CDouble) {
-            CDouble other = (CDouble)obj;
+            CDouble other = (CDouble) obj;
             return other.real == real && other.imag == imag;
         }
         return false;
@@ -133,5 +133,5 @@ public class CDouble {
         return hash;
     }
 
-    
+
 }

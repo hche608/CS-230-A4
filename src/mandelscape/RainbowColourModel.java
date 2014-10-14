@@ -44,13 +44,13 @@ public class RainbowColourModel extends MandelColourModel {
     public Color iterToColor(int iter) {
 
         // Colour the mandelbrot set black
-        if (iter<0)
+        if (iter < 0)
             return Color.BLACK;
 
-        double phase = (iter + offset)/(double)period  % 1.0;
+        double phase = (iter + offset) / (double) period % 1.0;
 
-        return Color.getHSBColor((float)phase, 1, 1);
+        return Color.getHSBColor((float) phase, 1, 1);
     }
 
-    
+
 }

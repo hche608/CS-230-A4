@@ -19,8 +19,6 @@ package mandelscape;
 import java.awt.BorderLayout;
 import java.awt.Container;
 import java.awt.Dimension;
-import java.awt.HeadlessException;
-import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.InputEvent;
@@ -28,8 +26,6 @@ import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.util.Timer;
-
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -49,7 +45,6 @@ import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 /**
@@ -70,8 +65,8 @@ public class MandelscapeApp extends JFrame implements ActionListener {
         // Set up main viewer model and panel:
 
         final MandelModel model = new MandelModel(500, 800, 800);
-        Object[] colourModels = {new RainbowColourModel(), new IceColourModel() };
-        MandelColourModel colourModel = (MandelColourModel)colourModels[0];
+        Object[] colourModels = {new RainbowColourModel(), new IceColourModel()};
+        MandelColourModel colourModel = (MandelColourModel) colourModels[0];
 
         mandelPanel = new MandelPanel(model, colourModel);
         cp.add(mandelPanel, BorderLayout.CENTER);
@@ -85,8 +80,8 @@ public class MandelscapeApp extends JFrame implements ActionListener {
         colourModelComboBox.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                JComboBox cb = (JComboBox)e.getSource();
-                mandelPanel.setColourModel((MandelColourModel)cb.getSelectedItem());
+                JComboBox cb = (JComboBox) e.getSource();
+                mandelPanel.setColourModel((MandelColourModel) cb.getSelectedItem());
             }
         });
         bottomPanel.add(colourModelComboBox);
@@ -96,8 +91,8 @@ public class MandelscapeApp extends JFrame implements ActionListener {
         iterSpinner.addChangeListener(new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent e) {
-                JSpinner spinnerObj = (JSpinner)e.getSource();
-                model.setMaxIter((Integer)spinnerObj.getValue());
+                JSpinner spinnerObj = (JSpinner) e.getSource();
+                model.setMaxIter((Integer) spinnerObj.getValue());
             }
         });
         bottomPanel.add(iterSpinner);
@@ -106,38 +101,38 @@ public class MandelscapeApp extends JFrame implements ActionListener {
         zoomResetButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-            	model.resetZoom();
+                model.resetZoom();
             }
         });
         bottomPanel.add(zoomResetButton);
-        
+
         //the number of concurrent threads
         bottomPanel.add(new JLabel("Max thread: "));
         JSpinner threadSpinner = new JSpinner(new SpinnerNumberModel(1, 1, 8, 1));
         threadSpinner.addChangeListener(new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent e) {
-                JSpinner spinnerObj = (JSpinner)e.getSource();
-                model.setMaxThread((Integer)spinnerObj.getValue());
+                JSpinner spinnerObj = (JSpinner) e.getSource();
+                model.setMaxThread((Integer) spinnerObj.getValue());
             }
         });
         bottomPanel.add(threadSpinner);
-        
+
         //Initial timer
-        colourTimer = new javax.swing.Timer(1,this);
+        colourTimer = new javax.swing.Timer(1, this);
 
         //CheckBox
         final JCheckBox checkBox = new JCheckBox("Animate");
         checkBox.addChangeListener(new ChangeListener() {
-        	
-        	@Override
+
+            @Override
             public void stateChanged(ChangeEvent e) {
-        		if (checkBox.isSelected()){
-        			colourTimer.start();
-        		} else {
-        			colourTimer.stop();
-        		}
-        	}
+                if (checkBox.isSelected()) {
+                    colourTimer.start();
+                } else {
+                    colourTimer.stop();
+                }
+            }
         });
         bottomPanel.add(checkBox);
 
@@ -168,8 +163,8 @@ public class MandelscapeApp extends JFrame implements ActionListener {
                         ImageIO.write(image, "png", output);
                     } catch (IOException ex) {
                         JOptionPane.showMessageDialog(getParent(),
-                            "Error writing file.", "Error",
-                            JOptionPane.ERROR_MESSAGE);
+                                "Error writing file.", "Error",
+                                JOptionPane.ERROR_MESSAGE);
                     }
                 }
             }
@@ -184,9 +179,9 @@ public class MandelscapeApp extends JFrame implements ActionListener {
             @Override
             public void actionPerformed(ActionEvent e) {
                 if (JOptionPane.showConfirmDialog(mandelPanel,
-                    "Really exit from Mandelscape?",
-                    "Please confirm",
-                    JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
+                        "Really exit from Mandelscape?",
+                        "Please confirm",
+                        JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
 
                     System.exit(0);
                 }
@@ -203,18 +198,18 @@ public class MandelscapeApp extends JFrame implements ActionListener {
             @Override
             public void actionPerformed(ActionEvent e) {
                 JOptionPane.showMessageDialog(mandelPanel,
-                    "<html>"
-                        + "<table style='font-weight: normal; text-align: left;'>"
-                        + "<tr style='border-bottom: 1px solid black; font-weight: bold;'>"
-                        + "<th><b>Mouse Action</b></th><th><b>Result</b></th></tr>"
-                        + "<tr><td>single left click</td><td>zoom in</td></tr>"
-                        + "<tr>single right click</td><td>zoom out</td></tr>"
-                        + "<tr>scroll wheel</td><td>zoom in/out</td></tr>"
-                        + "<tr>left click and drag</td><td>pan view</td></tr>"
-                        + "<tr>double left click</td><td>reset zoom</td></tr>"
-                        + "</table>"
-                        + "</html>",
-                    "Mandelscape Controls", JOptionPane.INFORMATION_MESSAGE);
+                        "<html>"
+                                + "<table style='font-weight: normal; text-align: left;'>"
+                                + "<tr style='border-bottom: 1px solid black; font-weight: bold;'>"
+                                + "<th><b>Mouse Action</b></th><th><b>Result</b></th></tr>"
+                                + "<tr><td>single left click</td><td>zoom in</td></tr>"
+                                + "<tr>single right click</td><td>zoom out</td></tr>"
+                                + "<tr>scroll wheel</td><td>zoom in/out</td></tr>"
+                                + "<tr>left click and drag</td><td>pan view</td></tr>"
+                                + "<tr>double left click</td><td>reset zoom</td></tr>"
+                                + "</table>"
+                                + "</html>",
+                        "Mandelscape Controls", JOptionPane.INFORMATION_MESSAGE);
             }
         });
         helpMenu.add(helpControlsMenuItem);
@@ -224,18 +219,18 @@ public class MandelscapeApp extends JFrame implements ActionListener {
             @Override
             public void actionPerformed(ActionEvent e) {
                 JOptionPane.showMessageDialog(mandelPanel,
-                    "<html>"
-                        + "<body style='font-weight:normal;'"
-                        + "<h2>Mandelscape 1.0</h2>"
-                        + "Very simple application that can be used to explore <br>"
-                        + "the Mandelbrot set</a>.<br>"
-                        + "<br>"
-                        + "Distributed under version 3.0 of the GNU General Public License."
-                        + "</body>"
-                        + "</html>",
-                    "About Mandelscape", JOptionPane.INFORMATION_MESSAGE,
-                    new ImageIcon(getClass().getClassLoader().getResource("mandelscape/resources/logo.png")));
-                
+                        "<html>"
+                                + "<body style='font-weight:normal;'"
+                                + "<h2>Mandelscape 1.0</h2>"
+                                + "Very simple application that can be used to explore <br>"
+                                + "the Mandelbrot set</a>.<br>"
+                                + "<br>"
+                                + "Distributed under version 3.0 of the GNU General Public License."
+                                + "</body>"
+                                + "</html>",
+                        "About Mandelscape", JOptionPane.INFORMATION_MESSAGE,
+                        new ImageIcon(getClass().getClassLoader().getResource("mandelscape/resources/logo.png")));
+
             }
         });
         helpMenu.add(helpAboutMenuItem);
@@ -249,10 +244,10 @@ public class MandelscapeApp extends JFrame implements ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-    	int currentPeriod = mandelPanel.getColourModel().getPeriod();
-    	int currentOffset = mandelPanel.getColourModel().getOffset();
+        int currentPeriod = mandelPanel.getColourModel().getPeriod();
+        int currentOffset = mandelPanel.getColourModel().getOffset();
 
-    	mandelPanel.getColourModel().setOffset((currentOffset + 10) % currentPeriod);
+        mandelPanel.getColourModel().setOffset((currentOffset + 10) % currentPeriod);
 
     }
 

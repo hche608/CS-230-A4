@@ -17,7 +17,6 @@
 package mandelscape;
 
 import javax.swing.*;
-
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
@@ -35,7 +34,7 @@ import java.util.concurrent.Executors;
 public class MandelModel {
     private int maxIter;
     private final List<MandelModelChangeListener> listeners =
-        new ArrayList<MandelModelChangeListener>();
+            new ArrayList<MandelModelChangeListener>();
 
     final private double cr0Min = -2.5;
     final private double cr0Max = 0.5;
@@ -44,9 +43,9 @@ public class MandelModel {
 
     private double crMin, crMax, ciMin, ciMax;
 
-    private int [] iters;
+    private int[] iters;
     private int width, height;
-    
+
     private ArrayList<SwingWorker> workers = new ArrayList<SwingWorker>();
     private int WMAX;
 
@@ -54,31 +53,31 @@ public class MandelModel {
     /**
      * Create a new MandelModel with the specified initial maximum iteration
      * count, width and height.
-     * 
+     *
      * @param maxIter
      * @param width
-     * @param height 
+     * @param height
      */
     public MandelModel(int maxIter, int width, int height) {
         this.maxIter = maxIter;
 
         this.width = width;
         this.height = height;
-        this.iters = new int[width*height];
+        this.iters = new int[width * height];
 
         this.crMin = cr0Min;
         this.crMax = cr0Max;
         this.ciMin = ci0Min;
         this.ciMax = ci0Max;
-        
+
         //default thread for the WMAX
         this.WMAX = 1;
     }
 
     /**
      * Add a listener for changes in the MandelModel.
-     * 
-     * @param listener 
+     *
+     * @param listener
      */
     public void addChangeListener(MandelModelChangeListener listener) {
         listeners.add(listener);
@@ -86,12 +85,13 @@ public class MandelModel {
 
     /**
      * Remove a model change listener.
-     * 
-     * @param listener 
+     *
+     * @param listener
      */
     public void removeChangeListener(MandelModelChangeListener listener) {
         listeners.remove(listener);
     }
+
     /**
      * Let any listeners know that the model has changed.
      */
@@ -103,8 +103,8 @@ public class MandelModel {
     /**
      * Set the maximum number of iterations to perform when estimating
      * boundary escape rate.
-     * 
-     * @param newMaxIter 
+     *
+     * @param newMaxIter
      */
     public void setMaxIter(int newMaxIter) {
         maxIter = newMaxIter;
@@ -130,7 +130,7 @@ public class MandelModel {
      *
      * @param centrex
      * @param centrey
-     * @param factor zoom factor: &lt;1 zooms out, &gt;1 zooms in.
+     * @param factor  zoom factor: &lt;1 zooms out, &gt;1 zooms in.
      */
     public void zoom(int centrex, int centrey, double factor) {
         zoom(getPoint(centrex, centrey), factor);
@@ -139,15 +139,15 @@ public class MandelModel {
     /**
      * Zoom in/out, keeping the specified complex number "centre" at the same
      * relative distance to the region boundaries.
-     * 
+     *
      * @param centre
      * @param factor zoom factor: &lt;1 zooms out, &gt;1 zooms in.
      */
     public void zoom(CDouble centre, double factor) {
-        double crMinPrime = crMin/factor - centre.real*(1.0/factor-1);
-        double crMaxPrime = crMinPrime + (crMax-crMin)/factor;
-        double ciMinPrime = ciMin/factor - centre.imag*(1.0/factor-1);
-        double ciMaxPrime = ciMinPrime + (ciMax-ciMin)/factor;
+        double crMinPrime = crMin / factor - centre.real * (1.0 / factor - 1);
+        double crMaxPrime = crMinPrime + (crMax - crMin) / factor;
+        double ciMinPrime = ciMin / factor - centre.imag * (1.0 / factor - 1);
+        double ciMaxPrime = ciMinPrime + (ciMax - ciMin) / factor;
 
         crMin = crMinPrime;
         crMax = crMaxPrime;
@@ -159,15 +159,15 @@ public class MandelModel {
 
     /**
      * Shift view by chosen offset.
-     * 
+     *
      * @param dx horizontal pixel offset
      * @param dy vertical pixel offset
      */
     public void pan(int dx, int dy) {
-        double crMinPrime = crMin - dx*(crMax-crMin)/width;
-        double crMaxPrime = crMax - dx*(crMax-crMin)/width;
-        double ciMinPrime = ciMin - dy*(ciMax-ciMin)/height;
-        double ciMaxPrime = ciMax - dy*(ciMax-ciMin)/height;
+        double crMinPrime = crMin - dx * (crMax - crMin) / width;
+        double crMaxPrime = crMax - dx * (crMax - crMin) / width;
+        double ciMinPrime = ciMin - dy * (ciMax - ciMin) / height;
+        double ciMaxPrime = ciMax - dy * (ciMax - ciMin) / height;
 
         crMin = crMinPrime;
         crMax = crMaxPrime;
@@ -180,14 +180,14 @@ public class MandelModel {
 
     /**
      * Set the dimension of the pixel grid.
-     * 
+     *
      * @param width
-     * @param height 
+     * @param height
      */
     public void setDimension(int width, int height) {
         this.width = width;
         this.height = height;
-        iters = new int[width*height];
+        iters = new int[width * height];
 
         update();
     }
@@ -198,24 +198,24 @@ public class MandelModel {
      * after an infinite number of iterations are in the set, all others
      * are not.  We use a finite number of iterations to approximately
      * determine membership.)
-     * 
+     * <p/>
      * This function returns the number of iterations taken to escape the
      * boundary |z|=1, or -1 if z remained bounded for maxIter iterations.
-     * 
+     *
      * @param cr
      * @param ci
-     * @return 
+     * @return
      */
-    private int getEscapeIters(CDouble c) throws InterruptedException{
+    private int getEscapeIters(CDouble c) throws InterruptedException {
 
-        if(Thread.interrupted()) {
+        if (Thread.interrupted()) {
             //System.out.println("InterruptedException thrown here");
             throw new InterruptedException();
         }
 
         CDouble z = CDouble.ZERO;
 
-        for (int i=0; i<maxIter; i++) {
+        for (int i = 0; i < maxIter; i++) {
 
             // Update z:
             z = z.squared().add(c);
@@ -231,31 +231,31 @@ public class MandelModel {
 
     /**
      * Get complex number associated with pixel grid coordinates (x,y).
-     * 
+     *
      * @param x
      * @param y
      * @return complex number
      */
     public CDouble getPoint(int x, int y) {
-        return new CDouble(crMin + x*(crMax-crMin)/width,
-            ciMin + y*(ciMax-ciMin)/height);
+        return new CDouble(crMin + x * (crMax - crMin) / width,
+                ciMin + y * (ciMax - ciMin) / height);
     }
 
     /**
      * Get complex number associated with pixel grid coordinates (x,y), but
      * with a random jitter to avoid aliasing effects.
-     * 
+     *
      * @param x
      * @param y
      * @param mag magnitude of jitter
      * @return complex number
      */
     public CDouble getPointJittered(int x, int y, double mag) {
-        double dcr = (crMax-crMin)/((double)width);
-        double dci = (ciMax-ciMin)/((double)height);
+        double dcr = (crMax - crMin) / ((double) width);
+        double dci = (ciMax - ciMin) / ((double) height);
 
-        return new CDouble(crMin + dcr*(x + mag*(Math.random()-0.5)),
-            ciMin + dci*(y + mag*(Math.random()-0.5)));
+        return new CDouble(crMin + dcr * (x + mag * (Math.random() - 0.5)),
+                ciMin + dci * (y + mag * (Math.random() - 0.5)));
     }
 
     /**
@@ -266,11 +266,11 @@ public class MandelModel {
      */
     public BufferedImage getImage(MandelColourModel colourModel) {
         BufferedImage image = new BufferedImage(width, height,
-            BufferedImage.TYPE_INT_RGB);
+                BufferedImage.TYPE_INT_RGB);
 
-        for (int x=0; x<width; x++) {
-            for (int y=0; y<height; y++) {
-                image.setRGB(x, y, colourModel.iterToColor(iters[x*height + y]).getRGB());
+        for (int x = 0; x < width; x++) {
+            for (int y = 0; y < height; y++) {
+                image.setRGB(x, y, colourModel.iterToColor(iters[x * height + y]).getRGB());
             }
         }
 
@@ -281,28 +281,27 @@ public class MandelModel {
      * Compute boundary escape iteration counts for each pixel in region.
      */
     public void update() {
-    	for(SwingWorker worker : workers){
-    		//if(worker != null)
-                worker.cancel(true);
-    	}
-    	workers.clear();
-    	
-    	ExecutorService fixedPool = Executors.newFixedThreadPool(WMAX);
-    	for(int widx = 0; widx < WMAX; widx++){
-    		final int xmin = (widx * width) / WMAX;
-    		final int xmax = ((widx + 1) * width) / WMAX;
+        for (SwingWorker worker : workers) {
+            worker.cancel(true);
+        }
+        workers.clear();
+
+        ExecutorService fixedPool = Executors.newFixedThreadPool(WMAX);
+        for (int widx = 0; widx < WMAX; widx++) {
+            final int xmin = (widx * width) / WMAX;
+            final int xmax = ((widx + 1) * width) / WMAX;
             //System.out.println("Thread[" + widx + "] w*h = " + (xmax - xmin) + "x" + height + "=" + (xmax - xmin)*height );
-        	SwingWorker worker = new SwingWorker<Void, Void>(){
+            SwingWorker worker = new SwingWorker<Void, Void>() {
 
                 @Override
-                protected Void doInBackground(){
+                protected Void doInBackground() {
 
-                    try{
-                        int count = 0;
-                        for (int bsize = 64; bsize > 0; bsize/=2) {
-                            for (int x=xmin; x<xmax; x+=bsize) {
-                                for (int y=0; y<height; y+=bsize) {
-                                    if(bsize != 64 && (((x - xmin) /bsize) % 2 == 0 && (y/bsize) % 2 == 0)){
+                    try {
+                        //int count = 0;
+                        for (int bsize = 64; bsize > 0; bsize /= 2) {
+                            for (int x = xmin; x < xmax; x += bsize) {
+                                for (int y = 0; y < height; y += bsize) {
+                                    if (bsize != 64 && (((x - xmin) / bsize) % 2 == 0 && (y / bsize) % 2 == 0)) {
                                         continue;
                                     }
                                     CDouble c = getPointJittered(x, y, 0.1);
@@ -310,24 +309,23 @@ public class MandelModel {
 
                                     int blockX, blockY;
 
-                                    for (blockX = x; blockX < x + bsize; blockX++){
-                                        if(blockX == xmax)
+                                    for (blockX = x; blockX < x + bsize; blockX++) {
+                                        if (blockX == xmax)
                                             break;
-                                        for (blockY = y; blockY < y + bsize; blockY++){
-                                            if(blockY == height)
+                                        for (blockY = y; blockY < y + bsize; blockY++) {
+                                            if (blockY == height)
                                                 break;
                                             iters[blockX * height + blockY] = escapeIters;
                                         }
                                     }
-                                    count++;
+                                    //count++;
                                 }
                             }
                             publish();
                         }
                         //System.out.println("Total pixels are " + iters.length + ", height * width(" + xmin + "-" + xmax + ")[" + height + "*" + (xmax-xmin) + " = " + (height * (xmax-xmin)) + "] Count is " + count);
-                    }
-                    catch (InterruptedException ex){
-                    	//System.out.println("catch an InterruptedException");
+                    } catch (InterruptedException ex) {
+                        //System.out.println("catch an InterruptedException");
                     }
                     return null;
                 }
@@ -346,13 +344,12 @@ public class MandelModel {
             };
             workers.add(worker);
             fixedPool.submit(worker);
-    	}
+        }
     }
 
     /**
      * Set the maximum number of thread to perform
      *
-     * 
      * @param newMaxThread
      */
     public void setMaxThread(int newMaxThread) {

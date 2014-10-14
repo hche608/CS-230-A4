@@ -34,7 +34,7 @@ public abstract class MandelColourModel {
     int period, offset;
 
     private final List<ColourModelChangeListener> listeners =
-        new ArrayList<ColourModelChangeListener>();
+            new ArrayList<ColourModelChangeListener>();
 
     @Override
     public abstract String toString();
@@ -60,11 +60,11 @@ public abstract class MandelColourModel {
     }
 
     public abstract Color iterToColor(int iter);
-    
+
     /**
      * Add a listener for changes in the MandelModel.
-     * 
-     * @param listener 
+     *
+     * @param listener
      */
     public void addChangeListener(ColourModelChangeListener listener) {
         listeners.add(listener);
@@ -72,8 +72,8 @@ public abstract class MandelColourModel {
 
     /**
      * Remove a listener.
-     * 
-     * @param listener 
+     *
+     * @param listener
      */
     public void removeChangeListener(ColourModelChangeListener listener) {
         listeners.remove(listener);

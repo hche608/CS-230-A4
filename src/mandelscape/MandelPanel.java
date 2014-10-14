@@ -41,7 +41,7 @@ public class MandelPanel extends JPanel {
     private ColourModelChangeListener colourChangeListener;
 
     public MandelPanel(final MandelModel model, MandelColourModel colourModel) {
-        this.model = model; 
+        this.model = model;
         model.addChangeListener(new MandelModelChangeListener() {
             @Override
             public void modelHasChanged() {
@@ -69,12 +69,12 @@ public class MandelPanel extends JPanel {
         addMouseWheelListener(new MouseWheelListener() {
             @Override
             public void mouseWheelMoved(MouseWheelEvent e) {
-                if (e.getWheelRotation()==0)
+                if (e.getWheelRotation() == 0)
                     return;
 
                 Point point = e.getPoint();
 
-                if (e.getWheelRotation()>0) {
+                if (e.getWheelRotation() > 0) {
                     // Scroll down (zoom out)
 
                     model.zoom(point.x, point.y, 0.8);
@@ -89,13 +89,13 @@ public class MandelPanel extends JPanel {
         addMouseListener(new MouseAdapter() {
 
             boolean dragging = false;
-            Point lastPoint; 
+            Point lastPoint;
 
             @Override
             public void mouseClicked(MouseEvent e) {
-                switch(e.getButton()) {
+                switch (e.getButton()) {
                     case MouseEvent.BUTTON1:
-                        if (e.getClickCount()==1) {
+                        if (e.getClickCount() == 1) {
                             // Single left click: Zoom in
                             Point point = e.getPoint();
                             model.zoom(point.x, point.y, 1.2);
@@ -127,7 +127,7 @@ public class MandelPanel extends JPanel {
 
                 if (lastPoint != null)
                     model.pan(thisPoint.x - lastPoint.x,
-                        thisPoint.y - lastPoint.y);
+                            thisPoint.y - lastPoint.y);
 
                 lastPoint = thisPoint;
             }
@@ -136,7 +136,7 @@ public class MandelPanel extends JPanel {
             public void mouseMoved(MouseEvent e) {
                 lastPoint = e.getPoint();
             }
-            
+
         });
     }
 

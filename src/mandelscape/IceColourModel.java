@@ -41,14 +41,14 @@ public class IceColourModel extends MandelColourModel {
 
     @Override
     public Color iterToColor(int iter) {
-        
+
         // Colour the mandelbrot set black
-        if (iter<0)
+        if (iter < 0)
             return Color.BLACK;
 
-        double phase = (iter + offset)/(double)period  % 1.0;
+        double phase = (iter + offset) / (double) period % 1.0;
 
-        return Color.getHSBColor((float)0.5, 1, (float)Math.pow(phase, 0.2));
+        return Color.getHSBColor((float) 0.5, 1, (float) Math.pow(phase, 0.2));
     }
-    
+
 }

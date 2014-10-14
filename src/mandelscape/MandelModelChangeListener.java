@@ -24,5 +24,5 @@ package mandelscape;
 public interface MandelModelChangeListener {
 
     public void modelHasChanged();
-    
+
 }
