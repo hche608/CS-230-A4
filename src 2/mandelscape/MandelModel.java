@@ -17,12 +17,9 @@
 package mandelscape;
 
 import javax.swing.*;
-
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 /**
  * Model for the Mandelbrot set.  Contains the computed escape iteration
@@ -46,9 +43,8 @@ public class MandelModel {
 
     private int [] iters;
     private int width, height;
-    
-    private ArrayList<SwingWorker> workers = new ArrayList<SwingWorker>();
-    private int WMAX;
+
+    private SwingWorker worker;
 
 
     /**
@@ -70,9 +66,6 @@ public class MandelModel {
         this.crMax = cr0Max;
         this.ciMin = ci0Min;
         this.ciMax = ci0Max;
-        
-        //default thread for the WMAX
-        this.WMAX = 1;
     }
 
     /**
@@ -209,7 +202,7 @@ public class MandelModel {
     private int getEscapeIters(CDouble c) throws InterruptedException{
 
         if(Thread.interrupted()) {
-            //System.out.println("InterruptedException thrown here");
+            System.out.println("InterruptedException");
             throw new InterruptedException();
         }
 
@@ -281,83 +274,50 @@ public class MandelModel {
      * Compute boundary escape iteration counts for each pixel in region.
      */
     public void update() {
-    	for(SwingWorker worker : workers){
-    		//if(worker != null)
-                worker.cancel(true);
-    	}
-    	workers.clear();
-    	
-    	ExecutorService fixedPool = Executors.newFixedThreadPool(WMAX);
-    	for(int widx = 0; widx < WMAX; widx++){
-    		final int xmin = (widx * width) / WMAX;
-    		final int xmax = ((widx + 1) * width) / WMAX;
-            //System.out.println("Thread[" + widx + "] w*h = " + (xmax - xmin) + "x" + height + "=" + (xmax - xmin)*height );
-        	SwingWorker worker = new SwingWorker<Void, Void>(){
 
-                @Override
-                protected Void doInBackground(){
+        if(worker != null) {
+            System.out.println(worker != null);
+            worker.cancel(true);
+        }
 
-                    try{
-                        int count = 0;
-                        for (int bsize = 64; bsize > 0; bsize/=2) {
-                            for (int x=xmin; x<xmax; x+=bsize) {
-                                for (int y=0; y<height; y+=bsize) {
-                                    if(bsize != 64 && (((x - xmin) /bsize) % 2 == 0 && (y/bsize) % 2 == 0)){
-                                        continue;
-                                    }
-                                    CDouble c = getPointJittered(x, y, 0.1);
-                                    int escapeIters = getEscapeIters(c);
+        worker = new SwingWorker<Void, Void>(){
 
-                                    int blockX, blockY;
+            @Override
+            protected Void doInBackground(){//throws Exception
 
-                                    for (blockX = x; blockX < x + bsize; blockX++){
-                                        if(blockX == xmax)
-                                            break;
-                                        for (blockY = y; blockY < y + bsize; blockY++){
-                                            if(blockY == height)
-                                                break;
-                                            iters[blockX * height + blockY] = escapeIters;
-                                        }
-                                    }
-                                    count++;
-                                }
-                            }
-                            publish();
+                try{
+
+                    for (int x=0; x<width; x++) {
+                        for (int y=0; y<height; y++) {
+
+                            CDouble c = getPointJittered(x, y, 0.1);
+                            iters[x*height + y] = getEscapeIters(c);
+
                         }
-                        //System.out.println("Total pixels are " + iters.length + ", height * width(" + xmin + "-" + xmax + ")[" + height + "*" + (xmax-xmin) + " = " + (height * (xmax-xmin)) + "] Count is " + count);
+                        publish();
                     }
-                    catch (InterruptedException ex){
-                    	//System.out.println("catch an InterruptedException");
-                    }
-                    return null;
-                }
 
-                @Override
-                protected void process(List<Void> chunks) {
-                    //System.out.println("processing");
-                    fireModelChangedEvent();
                 }
+                catch (InterruptedException ex){
 
-                @Override
-                protected void done() {
-                    fireModelChangedEvent();
-                    //System.out.println("Done");
                 }
-            };
-            workers.add(worker);
-            fixedPool.submit(worker);
-    	}
+                return null;
+            }
+
+            @Override
+            protected void process(List<Void> chunks) {
+                System.out.println("processing");
+                fireModelChangedEvent();
+            }
+
+            @Override
+            protected void done() {
+                //super.done();
+                fireModelChangedEvent();
+                System.out.println("Done");
+            }
+        };
+        worker.execute();
+        
     }
-
-    /**
-     * Set the maximum number of thread to perform
-     *
-     * 
-     * @param newMaxThread
-     */
-    public void setMaxThread(int newMaxThread) {
-        WMAX = newMaxThread;
-        update();
-    }
-
 }

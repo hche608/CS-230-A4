@@ -28,12 +28,9 @@ import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.util.Timer;
-
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
-import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -46,7 +43,6 @@ import javax.swing.JPanel;
 import javax.swing.JSpinner;
 import javax.swing.KeyStroke;
 import javax.swing.SpinnerNumberModel;
-import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileFilter;
@@ -57,10 +53,9 @@ import javax.swing.filechooser.FileNameExtensionFilter;
  *
  * @author Tim Vaughan <tgvaughan@gmail.com>
  */
-public class MandelscapeApp extends JFrame implements ActionListener {
+public class MandelscapeApp extends JFrame {
 
     private final MandelPanel mandelPanel;
-    private javax.swing.Timer colourTimer;
 
     public MandelscapeApp() {
         setTitle("MandelView - Mandelbrot Set Viewer");
@@ -106,40 +101,10 @@ public class MandelscapeApp extends JFrame implements ActionListener {
         zoomResetButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-            	model.resetZoom();
+                model.resetZoom();
             }
         });
         bottomPanel.add(zoomResetButton);
-        
-        //the number of concurrent threads
-        bottomPanel.add(new JLabel("Max thread: "));
-        JSpinner threadSpinner = new JSpinner(new SpinnerNumberModel(1, 1, 8, 1));
-        threadSpinner.addChangeListener(new ChangeListener() {
-            @Override
-            public void stateChanged(ChangeEvent e) {
-                JSpinner spinnerObj = (JSpinner)e.getSource();
-                model.setMaxThread((Integer)spinnerObj.getValue());
-            }
-        });
-        bottomPanel.add(threadSpinner);
-        
-        //Initial timer
-        colourTimer = new javax.swing.Timer(1,this);
-
-        //CheckBox
-        final JCheckBox checkBox = new JCheckBox("Animate");
-        checkBox.addChangeListener(new ChangeListener() {
-        	
-        	@Override
-            public void stateChanged(ChangeEvent e) {
-        		if (checkBox.isSelected()){
-        			colourTimer.start();
-        		} else {
-        			colourTimer.stop();
-        		}
-        	}
-        });
-        bottomPanel.add(checkBox);
 
         cp.add(bottomPanel, BorderLayout.SOUTH);
 
@@ -247,26 +212,10 @@ public class MandelscapeApp extends JFrame implements ActionListener {
         pack();
     }
 
-    @Override
-    public void actionPerformed(ActionEvent e) {
-    	int currentPeriod = mandelPanel.getColourModel().getPeriod();
-    	int currentOffset = mandelPanel.getColourModel().getOffset();
-
-    	mandelPanel.getColourModel().setOffset((currentOffset + 10) % currentPeriod);
-
-    }
-
     public static void main(String[] args) {
 
-        SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                new MandelscapeApp().setVisible(true);
-            }
-        });
-
+        new MandelscapeApp().setVisible(true);
 
     }
-
-
+    
 }
