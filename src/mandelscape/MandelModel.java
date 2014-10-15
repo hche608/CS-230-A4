@@ -16,12 +16,13 @@
  */
 package mandelscape;
 
-import javax.swing.*;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
+import javax.swing.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+
 
 /**
  * Model for the Mandelbrot set.  Contains the computed escape iteration
@@ -209,7 +210,6 @@ public class MandelModel {
     private int getEscapeIters(CDouble c) throws InterruptedException {
 
         if (Thread.interrupted()) {
-            //System.out.println("InterruptedException thrown here");
             throw new InterruptedException();
         }
 
@@ -290,14 +290,12 @@ public class MandelModel {
         for (int widx = 0; widx < WMAX; widx++) {
             final int xmin = (widx * width) / WMAX;
             final int xmax = ((widx + 1) * width) / WMAX;
-            //System.out.println("Thread[" + widx + "] w*h = " + (xmax - xmin) + "x" + height + "=" + (xmax - xmin)*height );
             SwingWorker worker = new SwingWorker<Void, Void>() {
 
                 @Override
                 protected Void doInBackground() {
 
                     try {
-                        //int count = 0;
                         for (int bsize = 64; bsize > 0; bsize /= 2) {
                             for (int x = xmin; x < xmax; x += bsize) {
                                 for (int y = 0; y < height; y += bsize) {
@@ -318,28 +316,23 @@ public class MandelModel {
                                             iters[blockX * height + blockY] = escapeIters;
                                         }
                                     }
-                                    //count++;
                                 }
                             }
                             publish();
                         }
-                        //System.out.println("Total pixels are " + iters.length + ", height * width(" + xmin + "-" + xmax + ")[" + height + "*" + (xmax-xmin) + " = " + (height * (xmax-xmin)) + "] Count is " + count);
                     } catch (InterruptedException ex) {
-                        //System.out.println("catch an InterruptedException");
                     }
                     return null;
                 }
 
                 @Override
                 protected void process(List<Void> chunks) {
-                    //System.out.println("processing");
                     fireModelChangedEvent();
                 }
 
                 @Override
                 protected void done() {
                     fireModelChangedEvent();
-                    //System.out.println("Done");
                 }
             };
             workers.add(worker);
@@ -356,5 +349,4 @@ public class MandelModel {
         WMAX = newMaxThread;
         update();
     }
-
 }

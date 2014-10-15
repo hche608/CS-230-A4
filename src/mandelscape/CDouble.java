@@ -107,7 +107,7 @@ public class CDouble {
      * @return result
      */
     public double abs() {
-        return Math.sqrt(abs2());
+        return Math.sqrt(abs());
     }
 
     /**
